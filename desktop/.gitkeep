@@ -1,0 +1,8 @@
+# Desktop directory (placeholder)
+
+The Electron desktop app will be implemented here.
+
+See `desktop/CLAUDE.md` for development guidance.
+
+Refer to design docs:
+- `../docs/superpowers/specs/modules/11-桌面应用子模块.md`

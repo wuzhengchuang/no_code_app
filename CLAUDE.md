@@ -1,41 +1,18 @@
-# NoCode App - 无代码应用开发平台
+# CLAUDE.md
 
-一个完整的无代码 App 和小程序生成平台，通过拖拽组件、配置接口、编排逻辑，生成可交互的 App 原型，并最终通过大模型生成各平台的代码和详细文档。
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 功能特性
+## Project Overview
 
-- 🎨 **可视化编辑器** - 拖拽式组件，所见即所得
-- 🧩 **丰富组件库** - 基础、表单、列表、导航、展示组件
-- 🔌 **接口配置** - API 配置，JSON 数据模型自动生成
-- 🔀 **逻辑编排** - 事件-动作绑定，简单表达式语法
-- 📱 **实时预览** - 多设备预览，真实 API 调用
-- 🤖 **大模型集成** - Claude/OpenAI 支持，智能代码生成
-- 💻 **多平台代码生成** - 微信小程序、H5、React Native、Flutter、原生iOS/Android、Uni-app
-- 📋 **文档生成** - CLAUDE.md 规范，技术规格，实现计划
-- 👥 **团队协作** - 权限管理，项目分享
-- 🖥️ **桌面应用** - Electron 版本，离线支持
+This is a **NoCode App Platform** - a complete visual development platform for creating apps and mini-programs without writing code. It features drag-and-drop component editing, API configuration, logic orchestration, and AI-powered code generation for multiple platforms.
 
-## 设计文档
+## Current Status
 
-完整的设计文档已生成在 `docs/superpowers/specs/` 目录下：
+The project is currently in the **design/documentation phase**. The implementation has not started yet.
 
-- [总览文档](docs/superpowers/specs/2026-05-09-无代码平台设计文档.md)
-- [子模块设计](docs/superpowers/specs/README.md)
-  - [01-用户与权限子模块](docs/superpowers/specs/modules/01-用户与权限子模块.md)
-  - [02-项目管理子模块](docs/superpowers/specs/modules/02-项目管理子模块.md)
-  - [03-可视化编辑器子模块](docs/superpowers/specs/modules/03-可视化编辑器子模块.md)
-  - [04-接口配置与数据模型子模块](docs/superpowers/specs/modules/04-接口配置与数据模型子模块.md)
-  - [05-逻辑编排子模块](docs/superpowers/specs/modules/05-逻辑编排子模块.md)
-  - [06-App预览子模块](docs/superpowers/specs/modules/06-App预览子模块.md)
-  - [07-大模型集成子模块](docs/superpowers/specs/modules/07-大模型集成子模块.md)
-  - [08-代码生成引擎子模块](docs/superpowers/specs/modules/08-代码生成引擎子模块.md)
-  - [09-文档生成子模块](docs/superpowers/specs/modules/09-文档生成子模块.md)
-  - [10-项目管理与用户权限子模块](docs/superpowers/specs/modules/10-项目管理与用户权限子模块.md)
-  - [11-桌面应用子模块](docs/superpowers/specs/modules/11-桌面应用子模块.md)
+## Architecture Overview
 
-## 架构概览
-
-### 系统层次
+The system is a multi-layer architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -91,78 +68,118 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 技术栈
-
-### 前端
-
-- Vue 3 + TypeScript
-- Pinia (状态管理)
-- Tailwind CSS (样式)
-- Vite (构建工具)
-
-### 后端
-
-- Python 3.11+ (主业务服务)
-- FastAPI (API框架)
-- SQLAlchemy 2.0 (ORM)
-- Node.js (服务网关)
-- MySQL 8.0+ (数据库)
-
-### 桌面应用
-
-- Electron 28+
-- Vue 3 (复用前端代码)
-- MySQL 8.0+ (本地数据库)
-
-## 目标平台代码生成
-
-- 微信小程序
-- 支付宝小程序
-- H5/Web
-- React Native (iOS/Android)
-- Flutter (iOS/Android)
-- 原生iOS (Swift)
-- 原生Android (Kotlin)
-- Uni-app
-
-## 目录结构
+## Project Structure
 
 ```
 no_code_app/
 ├── docs/
 │   └── superpowers/
-│       └── specs/
+│       └── specs/          # Complete design documentation
 │           ├── README.md
-│           ├── 2026-05-09-无代码平台设计文档.md
-│           └── modules/
-│               ├── 01-用户与权限子模块.md
-│               ├── 02-项目管理子模块.md
-│               └── ... (其他子模块)
-├── frontend/                (待创建)
-├── backend/                 (待创建)
-├── gateway/                 (待创建)
-├── desktop/                 (待创建)
+│           ├── 2026-05-09-无代码平台设计文档.md (Main spec)
+│           └── modules/     # 11 submodule design docs
+├── frontend/               # Vue 3 + TypeScript frontend
+│   └── CLAUDE.md           # [NEW] Frontend-specific guidance
+├── backend/                # Python backend services
+│   └── CLAUDE.md           # [NEW] Backend-specific guidance
+├── gateway/                # Node.js API gateway
+│   └── CLAUDE.md           # [NEW] Gateway-specific guidance
+├── desktop/                # Electron desktop app
+│   └── CLAUDE.md           # [NEW] Desktop-specific guidance
+├── CLAUDE.md               # This file
 └── README.md
 ```
 
-## 开发计划
+## Documentation
 
-按照设计文档中的分阶段实现计划进行：
+**Before writing any code, always refer to the design documentation:**
 
-1. **项目初始化与基础框架**
-2. **用户与权限模块**
-3. **项目管理模块**
-4. **可视化编辑器模块**
-5. **接口配置与数据模型模块**
-6. **逻辑编排模块**
-7. **App预览模块**
-8. **大模型集成模块**
-9. **代码生成引擎模块**
-10. **文档生成模块**
-11. **桌面应用模块**
+1. **Main spec document**: `docs/superpowers/specs/2026-05-09-无代码平台设计文档.md`
+2. **Submodule specs**: `docs/superpowers/specs/modules/`
+3. **Module-specific CLAUDE.md**:
+   - `frontend/CLAUDE.md` - Frontend development guide
+   - `backend/CLAUDE.md` - Backend development guide
+   - `gateway/CLAUDE.md` - Gateway development guide
+   - `desktop/CLAUDE.md` - Desktop app development guide
 
-详细计划请参考 [设计文档](docs/superpowers/specs/2026-05-09-无代码平台设计文档.md)。
+The 11 submodules are:
 
-## 许可证
+- `01-用户与权限子模块.md` - User authentication and permissions
+- `02-项目管理子模块.md` - Project management
+- `03-可视化编辑器子模块.md` - Visual drag-drop editor
+- `04-接口配置与数据模型子模块.md` - API config and data models
+- `05-逻辑编排子模块.md` - Logic orchestration
+- `06-App预览子模块.md` - App preview
+- `07-大模型集成子模块.md` - LLM integration (Claude/OpenAI)
+- `08-代码生成引擎子模块.md` - Code generation engine
+- `09-文档生成子模块.md` - Documentation generation
+- `10-项目管理与用户权限子模块.md` - Team collaboration
+- `11-桌面应用子模块.md` - Electron desktop app
 
-MIT
+## Tech Stack
+
+| Layer           | Technologies                                                                                                        |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Frontend        | Vue 3 + TypeScript + Pinia + Tailwind CSS + Vite                                                                    |
+| Backend         | Python 3.11+ + FastAPI + SQLAlchemy 2.0 + Node.js (gateway) + MySQL 8.0+                                            |
+| Desktop         | Electron 28+ + Vue 3 + MySQL 8.0+ (local database)                                                                 |
+| Code Generation | Supports: WeChat Mini, Alipay Mini, H5, React Native, Flutter, iOS Native (Swift), Android Native (Kotlin), Uni-app |
+
+## Design Principles
+
+Follow the design decisions documented in the specs:
+
+- Plugin-based architecture for code generators
+- Event-action pattern for logic orchestration
+- Isolated preview with real API calls
+- Abstraction layer for LLM integration
+
+## Common Development Tasks
+
+**Note**: Build/run commands will be available after the implementation starts. The current phase is design.
+
+When the implementation begins:
+
+1. Follow the **7-phase implementation plan** in the main spec
+2. Work on one submodule at a time
+3. Ensure database schema matches the spec before writing code
+4. Generate CLAUDE.md specs for projects created with this platform
+
+## Plan State Management Constraint
+
+**IMPORTANT: Plan Document State Synchronization**
+
+When executing any implementation plan or working on tasks:
+
+1. **Before starting work**:
+   - Update the corresponding design document to mark the phase/submodule as "In Progress"
+   - Record the start date and assignee in the document
+
+2. **During execution**:
+   - Keep the design document updated with progress notes
+   - Document any deviations from the original plan and their justifications
+   - Update task lists and checklists as items are completed
+
+3. **Upon completion**:
+   - Mark the phase/submodule as "Completed" in the design document
+   - Record the completion date
+   - Add a summary of what was implemented, including any key changes or decisions
+   - Link to the relevant code commits/PRs if applicable
+
+4. **State Tracking**:
+   - The main spec document (`2026-05-09-无代码平台设计文档.md`) contains a master status table
+   - Each submodule spec has its own status section
+   - Both must be kept in sync with actual progress
+   - Do not mark items as "Completed" without proper verification (tests passing, review done)
+
+5. **Review Checkpoints**:
+   - Before marking a phase as complete, use the `superpowers:requesting-code-review` skill
+   - Ensure all verification steps are completed before updating status
+   - Use `superpowers:verification-before-completion` to validate work
+
+## Important Notes
+
+- **All 11 submodules have detailed design docs** - read the relevant one before implementing
+- The project has no existing code yet - it's a greenfield project
+- Design documents contain detailed API specs, data models, and even code examples
+- When in doubt, follow the examples in the design docs

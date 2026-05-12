@@ -1,0 +1,8 @@
+# Gateway directory (placeholder)
+
+The service gateway will be implemented here.
+
+See `gateway/CLAUDE.md` for development guidance.
+
+Refer to design docs:
+- `../docs/superpowers/specs/2025-05-09-无代码平台设计文档.md`

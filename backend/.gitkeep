@@ -1,0 +1,13 @@
+# Backend directory (placeholder)
+
+The backend will be implemented here.
+
+See `backend/CLAUDE.md` for development guidance.
+
+Refer to design docs:
+- `../docs/superpowers/specs/modules/01-用户与权限子模块.md`
+- `../docs/superpowers/specs/modules/02-项目管理子模块.md`
+- `../docs/superpowers/specs/modules/04-接口配置与数据模型子模块.md`
+- `../docs/superpowers/specs/modules/07-大模型集成子模块.md`
+- `../docs/superpowers/specs/modules/08-代码生成引擎子模块.md`
+- `../docs/superpowers/specs/modules/09-文档生成子模块.md`
