@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 from src.db.session import get_db
 from src.models.user import User, UserSession
@@ -13,10 +13,11 @@ from src.core.config import get_settings
 settings = get_settings()
 security = HTTPBearer(auto_error=False)
 
-async def get_current_user(
+async def get_current_user_and_token(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
-) -> User:
+) -> Tuple[User, str]:
+    """获取当前用户和访问令牌"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="无法验证凭据",
@@ -41,7 +42,7 @@ async def get_current_user(
 
     from src.utils.jwt import hash_token
     hashed_token = hash_token(token)
-    
+
     session = db.query(UserSession).filter(
         UserSession.token == hashed_token,
         UserSession.is_revoked == 0
@@ -54,7 +55,13 @@ async def get_current_user(
     if user is None or user.status != 1:
         raise credentials_exception
 
-    return user
+    return user, token
+
+async def get_current_user(
+    user_and_token: Tuple[User, str] = Depends(get_current_user_and_token)
+) -> User:
+    """获取当前用户（仅用户信息）"""
+    return user_and_token[0]
 
 def require_team_role(min_role: str):
     def dependency(
@@ -62,11 +69,12 @@ def require_team_role(min_role: str):
         current_user: User = Depends(get_current_user),
         db: Session = Depends(get_db)
     ):
+        from src.schemas.common import TeamRole
         role_hierarchy = {
-            'owner': 4,
-            'admin': 3,
-            'member': 2,
-            'viewer': 1
+            TeamRole.OWNER: 4,
+            TeamRole.ADMIN: 3,
+            TeamRole.MEMBER: 2,
+            TeamRole.VIEWER: 1
         }
 
         team_member = db.query(TeamMember).filter(
@@ -80,7 +88,7 @@ def require_team_role(min_role: str):
                 detail="不是团队成员"
             )
 
-        if role_hierarchy[team_member.role] < role_hierarchy[min_role]:
+        if role_hierarchy.get(team_member.role, 0) < role_hierarchy.get(min_role, 0):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="权限不足"

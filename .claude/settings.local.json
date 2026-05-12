@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git ls-tree:*)",
+      "Bash(grep -E '\\\\.\\(py|pyc\\)$')",
+      "Bash(python -m pytest tests/test_user_permission.py -v)",
+      "Bash(rm -f test.db)",
+      "Bash(python -m pytest tests/test_user_permission.py::TestUserAuthentication::test_register_user -v -xvs)",
+      "Bash(cd:*)"
+    ]
+  }
+}

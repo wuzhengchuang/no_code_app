@@ -84,6 +84,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_user_sessions_user_id'), 'user_sessions', ['user_id'], unique=False)
     op.create_index(op.f('ix_user_sessions_expires_at'), 'user_sessions', ['expires_at'], unique=False)
     op.create_index(op.f('ix_user_sessions_token'), 'user_sessions', ['token'], unique=True)
+    op.create_index(op.f('ix_user_sessions_refresh_token'), 'user_sessions', ['refresh_token'], unique=True)
 
     op.create_table(
         'user_project_permissions',

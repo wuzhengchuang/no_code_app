@@ -11,6 +11,7 @@ from src.schemas.team import (
     TeamOwnershipTransfer, TeamMemberListResponse
 )
 from src.schemas.user import UserBase
+from src.schemas.common import TeamRole
 
 class TeamService:
     def __init__(self, db: Session):
@@ -28,7 +29,7 @@ class TeamService:
         team_member = TeamMember(
             team_id=team.id,
             user_id=user_id,
-            role="owner",
+            role=TeamRole.OWNER,
             joined_at=datetime.utcnow()
         )
         self.db.add(team_member)
@@ -207,7 +208,7 @@ class TeamService:
                 detail="团队成员不存在"
             )
 
-        if team_member.role == "owner":
+        if team_member.role == TeamRole.OWNER:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="不能修改所有者角色"
@@ -227,7 +228,7 @@ class TeamService:
                 detail="团队成员不存在"
             )
 
-        if team_member.role == "owner":
+        if team_member.role == TeamRole.OWNER:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="不能移除所有者"
@@ -271,9 +272,9 @@ class TeamService:
             .filter(TeamMember.team_id == team_id, TeamMember.user_id == current_user_id)\
             .first()
         if old_owner_member:
-            old_owner_member.role = "admin"
+            old_owner_member.role = TeamRole.ADMIN
 
-        existing_member.role = "owner"
+        existing_member.role = TeamRole.OWNER
         team.owner_id = data.newOwnerId
 
         self.db.commit()

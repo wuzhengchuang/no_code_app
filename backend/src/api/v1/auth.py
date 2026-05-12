@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.security import HTTPBasicCredentials
 from fastapi import Body
 
 from src.db.session import get_db
-from src.core.dependencies import get_current_user
+from src.core.dependencies import get_current_user, get_current_user_and_token
 from src.models.user import User
 from src.schemas.auth import UserRegister, TokenRefresh, AuthResponse, TokenResponse, LogoutRequest, UserLogin
 from src.schemas.user import SessionInfo
@@ -60,11 +60,12 @@ async def refresh(
 @router.post("/logout", response_model=Dict[str, Any])
 async def logout(
     data: LogoutRequest,
-    current_user: User = Depends(get_current_user),
+    user_and_token: Tuple[User, str] = Depends(get_current_user_and_token),
     db: Session = Depends(get_db)
 ):
+    current_user, token = user_and_token
     auth_service = AuthService(db)
-    auth_service.logout("", data.refreshToken)
+    auth_service.logout(token, data.refreshToken)
     return {
         "success": True,
         "data": None,

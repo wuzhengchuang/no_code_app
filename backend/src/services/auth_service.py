@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 from fastapi import HTTPException, status
-import re
 
 from src.models.user import User, UserSession
 from src.schemas.auth import UserRegister, UserLogin, TokenResponse, AuthResponse
@@ -12,19 +11,14 @@ from src.core.security import (
     create_access_token, create_refresh_token
 )
 from src.utils.jwt import hash_token
+from src.utils.security import validate_password_strength
 
 class AuthService:
     def __init__(self, db: Session):
         self.db = db
 
     def _validate_password(self, password: str) -> bool:
-        if len(password) < 8:
-            return False
-        if not re.search(r'[A-Za-z]', password):
-            return False
-        if not re.search(r'[0-9]', password):
-            return False
-        return True
+        return validate_password_strength(password)
 
     def _detect_device_type(self, user_agent: Optional[str]) -> Optional[str]:
         if not user_agent:
@@ -242,67 +236,6 @@ class AuthService:
             UserSession.is_revoked == 0
         ).order_by(UserSession.created_at.desc()).all()
         return sessions
-
-    def login_with_username(self, username: str, password: str, ip_address: Optional[str] = None, user_agent: Optional[str] = None) -> AuthResponse:
-        """使用用户名（邮箱）登录"""
-        user = self.db.query(User).filter(User.email == username).first()
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="邮箱或密码错误"
-            )
-
-        if not verify_password(password, user.password_hash):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="邮箱或密码错误"
-            )
-
-        if user.status != 1:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="用户已被禁用"
-            )
-
-        user.last_login_at = datetime.utcnow()
-        device_type = self._detect_device_type(user_agent)
-
-        token_data = {"sub": str(user.id), "email": user.email}
-        access_token, access_expire = create_access_token(token_data)
-        refresh_token, refresh_expire = create_refresh_token(token_data)
-
-        session = UserSession(
-            user_id=user.id,
-            token=hash_token(access_token),
-            refresh_token=hash_token(refresh_token),
-            expires_at=access_expire,
-            refresh_expires_at=refresh_expire,
-            ip_address=ip_address,
-            user_agent=user_agent[:500] if user_agent else None,
-            device_type=device_type
-        )
-        self.db.add(session)
-        self.db.commit()
-        self.db.refresh(user)
-
-        user_response = UserResponse(
-            id=user.id,
-            email=user.email,
-            nickname=user.nickname,
-            avatarUrl=user.avatar_url,
-            status=user.status,
-            lastLoginAt=user.last_login_at,
-            createdAt=user.created_at,
-            updatedAt=user.updated_at
-        )
-
-        return AuthResponse(
-            token=access_token,
-            refreshToken=refresh_token,
-            expiresAt=access_expire,
-            refreshExpiresAt=refresh_expire,
-            user=user_response
-        )
 
     def revoke_session(self, user_id: int, session_id: int) -> None:
         session = self.db.query(UserSession).filter(

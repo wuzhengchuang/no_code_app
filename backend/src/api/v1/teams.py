@@ -37,7 +37,7 @@ async def get_teams(
     result = team_service.get_user_teams(current_user.id)
     return {
         "success": True,
-        "data": [team.dict() for team in result],
+        "data": [team.model_dump() for team in result],
         "message": "获取成功"
     }
 
@@ -52,7 +52,7 @@ async def get_team(
     result = team_service.get_team_detail(team_id)
     return {
         "success": True,
-        "data": result.dict(),
+        "data": result.model_dump(),
         "message": "获取成功"
     }
 
@@ -68,7 +68,7 @@ async def update_team(
     result = team_service.update_team(team_id, data)
     return {
         "success": True,
-        "data": result.dict(),
+        "data": result.model_dump(),
         "message": "更新成功"
     }
 
@@ -98,7 +98,7 @@ async def get_team_members(
     result = team_service.get_team_members(team_id)
     return {
         "success": True,
-        "data": result.dict(),
+        "data": result.model_dump(),
         "message": "获取成功"
     }
 
@@ -114,7 +114,7 @@ async def add_team_member(
     result = team_service.add_team_member(team_id, current_user.id, data)
     return {
         "success": True,
-        "data": result.dict(),
+        "data": result.model_dump(),
         "message": "添加成功"
     }
 
