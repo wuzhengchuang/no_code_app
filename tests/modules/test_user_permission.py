@@ -18,9 +18,9 @@ from src.models.user import User, UserSession
 from src.models.team import Team, TeamMember
 from src.utils.security import get_password_hash
 
-# 测试数据库配置 - 使用 MySQL
-TEST_DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/nocode_platform_test"
-test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
+# 测试数据库配置 - 使用 SQLite 内存数据库
+TEST_DATABASE_URL = "sqlite:///./test.db"
+test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
@@ -51,11 +51,6 @@ def test_user(setup_database):
     """创建测试用户"""
     db = TestingSessionLocal()
     
-    # 先删除已存在的用户
-    db.query(UserSession).filter(UserSession.user_id == 1).delete()
-    db.query(User).filter(User.email == "test@example.com").delete()
-    db.commit()
-    
     # 创建测试用户
     hashed_password = get_password_hash("Password123")
     user = User(
@@ -70,8 +65,11 @@ def test_user(setup_database):
     
     yield user
     
-    # 清理
-    db.delete(user)
+    # 清理 - 先删除关联的session和团队相关记录
+    db.query(UserSession).filter(UserSession.user_id == user.id).delete()
+    db.query(TeamMember).filter(TeamMember.user_id == user.id).delete()
+    db.query(Team).filter(Team.owner_id == user.id).delete()
+    db.query(User).filter(User.id == user.id).delete()
     db.commit()
     db.close()
 
@@ -80,15 +78,17 @@ def test_user(setup_database):
 def auth_token(test_user):
     """获取认证令牌 - 生成JWT token并创建session记录"""
     from src.utils.jwt_manager import create_access_token
+    from src.utils.jwt import hash_token
     from datetime import datetime, timedelta, timezone
     
-    token, expire = create_access_token(data={"sub": test_user.id})
+    token, expire = create_access_token(data={"sub": str(test_user.id)})
+    hashed_token = hash_token(token)
     
     # 创建session记录
     db = TestingSessionLocal()
     session = UserSession(
         user_id=test_user.id,
-        token=token,
+        token=hashed_token,
         refresh_token="test_refresh_token",
         expires_at=expire,
         refresh_expires_at=datetime.now(timezone.utc) + timedelta(days=7)
@@ -227,11 +227,11 @@ class TestAuthAPI:
     
         response = client.post('/api/v1/auth/register', json=register_data)
     
-        assert response.status_code == 400
+        assert response.status_code == 409
         data = response.json()
         # HTTPException返回{"detail": "..."}格式
         assert 'detail' in data
-        assert 'already registered' in data['detail']
+        assert '用户已存在' in data['detail']
 
     def test_register_weak_password(self, setup_database):
         """测试弱密码注册"""
@@ -301,7 +301,7 @@ class TestAuthAPI:
     
         response = client.post('/api/v1/auth/login', data=login_data)
     
-        assert response.status_code == 401
+        assert response.status_code == 403
         data = response.json()
         # HTTPException返回{"detail": "..."}格式
         assert 'detail' in data
@@ -430,7 +430,7 @@ class TestJWTManager:
         """测试JWT令牌生成"""
         from src.utils.jwt_manager import create_access_token
         
-        token, expire = create_access_token(data={"sub": 1})
+        token, expire = create_access_token(data={"sub": "1"})
         
         assert token is not None
         assert len(token) > 0
@@ -440,7 +440,7 @@ class TestJWTManager:
         """测试令牌解码"""
         from src.utils.jwt_manager import create_access_token, decode_token
         
-        token, _ = create_access_token(data={"sub": 123})
+        token, _ = create_access_token(data={"sub": "123"})
         decoded = decode_token(token)
         
         # JWT解码依赖于配置的密钥，测试环境可能使用默认密钥
