@@ -18,9 +18,9 @@ from src.models.user import User, UserSession
 from src.models.team import Team, TeamMember
 from src.utils.security import get_password_hash
 
-# 测试数据库配置 - 使用 SQLite 内存数据库
-TEST_DATABASE_URL = "sqlite:///./test.db"
-test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+# 测试数据库配置 - 使用 MySQL 数据库
+TEST_DATABASE_URL = "mysql+pymysql://root:password@localhost:3306/test_nocode_app"
+test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
