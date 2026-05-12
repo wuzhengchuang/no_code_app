@@ -14,7 +14,7 @@ from src.services.team_service import TeamService
 
 router = APIRouter()
 
-@router.post("", response_model=Dict[str, Any], status_code=201)
+@router.post("", response_model=Dict[str, Any], status_code=200)
 async def create_team(
     data: TeamCreate,
     current_user: User = Depends(get_current_user),

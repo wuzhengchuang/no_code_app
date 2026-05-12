@@ -2,17 +2,19 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from typing import Dict, Any
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import HTTPBasicCredentials
+from fastapi import Body
 
 from src.db.session import get_db
 from src.core.dependencies import get_current_user
 from src.models.user import User
-from src.schemas.auth import UserRegister, TokenRefresh, AuthResponse, TokenResponse, LogoutRequest
+from src.schemas.auth import UserRegister, TokenRefresh, AuthResponse, TokenResponse, LogoutRequest, UserLogin
 from src.schemas.user import SessionInfo
 from src.services.auth_service import AuthService
 
 router = APIRouter()
 
-@router.post("/register", response_model=Dict[str, Any], status_code=201)
+@router.post("/register", response_model=Dict[str, Any], status_code=200)
 async def register(
     data: UserRegister,
     db: Session = Depends(get_db)
@@ -27,7 +29,7 @@ async def register(
 
 @router.post("/login", response_model=Dict[str, Any])
 async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    data: UserLogin = Body(...),
     request: Request = None,
     db: Session = Depends(get_db)
 ):
@@ -35,7 +37,7 @@ async def login(
     user_agent = request.headers.get("user-agent") if request else None
     
     auth_service = AuthService(db)
-    result = auth_service.login_with_username(form_data.username, form_data.password, ip_address, user_agent)
+    result = auth_service.login(data, ip_address, user_agent)
     return {
         "success": True,
         "data": result.model_dump(),

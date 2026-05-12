@@ -24,8 +24,36 @@ async def get_current_user_info(
         "message": "获取成功"
     }
 
+@router.get("/profile", response_model=Dict[str, Any])
+async def get_profile(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user_service = UserService(db)
+    user = user_service.get_user_by_id(current_user.id)
+    result = user_service.get_user_response(user)
+    return {
+        "success": True,
+        "data": result.model_dump(),
+        "message": "获取成功"
+    }
+
 @router.put("/me", response_model=Dict[str, Any])
 async def update_current_user_info(
+    data: UserProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user_service = UserService(db)
+    result = user_service.update_profile(current_user.id, data)
+    return {
+        "success": True,
+        "data": result.model_dump(),
+        "message": "更新成功"
+    }
+
+@router.put("/profile", response_model=Dict[str, Any])
+async def update_profile(
     data: UserProfileUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

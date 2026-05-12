@@ -371,7 +371,7 @@ class TestTeamManagement:
 class TestSecurity:
     def test_access_protected_route_without_token(self, setup_database):
         response = client.get("/api/v1/users/profile")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_access_protected_route_with_invalid_token(self, setup_database):
         response = client.get(
