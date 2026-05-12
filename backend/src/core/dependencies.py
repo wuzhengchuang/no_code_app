@@ -1,9 +1,9 @@
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, status, Request, Path
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from datetime import datetime
-from typing import Optional, Union, Tuple
+from typing import Optional, Union, Tuple, Callable
 
 from src.db.session import get_db
 from src.models.user import User, UserSession
@@ -12,6 +12,7 @@ from src.core.config import get_settings
 
 settings = get_settings()
 security = HTTPBearer(auto_error=False)
+
 
 async def get_current_user_and_token(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
@@ -57,15 +58,75 @@ async def get_current_user_and_token(
 
     return user, token
 
+
 async def get_current_user(
     user_and_token: Tuple[User, str] = Depends(get_current_user_and_token)
 ) -> User:
     """获取当前用户（仅用户信息）"""
     return user_and_token[0]
 
-def require_team_role(min_role: str):
+
+def require_team_role(min_role: str, team_id_param: str = "team_id"):
+    """
+    团队权限依赖工厂函数
+
+    Args:
+        min_role: 所需的最低角色权限
+        team_id_param: 路径参数中团队 ID 的参数名，默认为 "team_id"
+
+    Returns:
+        依赖注入函数
+    """
     def dependency(
-        team_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+    ) -> Callable:
+        """
+        返回一个实际的权限检查函数
+        调用方式: check_team_role = Depends(require_team_role("admin"))
+                  team_member = check_team_role(team_id)
+        """
+        from src.schemas.common import TeamRole
+        role_hierarchy = {
+            TeamRole.OWNER: 4,
+            TeamRole.ADMIN: 3,
+            TeamRole.MEMBER: 2,
+            TeamRole.VIEWER: 1
+        }
+
+        def check_role(team_id: int) -> TeamMember:
+            team_member = db.query(TeamMember).filter(
+                TeamMember.team_id == team_id,
+                TeamMember.user_id == current_user.id
+            ).first()
+
+            if not team_member:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="不是团队成员"
+                )
+
+            if role_hierarchy.get(team_member.role, 0) < role_hierarchy.get(min_role, 0):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="权限不足"
+                )
+
+            return team_member
+
+        return check_role
+
+    return dependency
+
+
+def require_team_role_direct(min_role: str):
+    """
+    直接从路径参数获取 team_id 的权限依赖（向后兼容）
+
+    这种方式耦合度较高，但使用简单，适合快速开发
+    """
+    def dependency(
+        team_id: int = Path(..., description="团队 ID"),
         current_user: User = Depends(get_current_user),
         db: Session = Depends(get_db)
     ):

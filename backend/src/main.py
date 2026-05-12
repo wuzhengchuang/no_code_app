@@ -15,6 +15,20 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# 可选：添加速率限制器
+try:
+    from slowapi.errors import RateLimitExceeded
+    from src.core.middleware import RequestLogMiddleware
+    from src.core.rate_limit import limiter, rate_limit_exceeded_handler
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+    app.add_middleware(RequestLogMiddleware)
+except ImportError:
+    # 如果没有安装 slowapi，跳过速率限制功能
+    pass
+
+# 添加 CORS 中间件
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

@@ -26,6 +26,36 @@ class ErrorCode(str, Enum):
     INTERNAL_ERROR = "INTERNAL_ERROR"
     RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED"
 
+class ApiResponse(BaseModel, Generic[T]):
+    """通用 API 响应模型"""
+    success: bool
+    data: Optional[T] = None
+    message: Optional[str] = None
+    error: Optional[dict] = None
+
+    @classmethod
+    def success_response(
+        cls,
+        data: Optional[T] = None,
+        message: str = "操作成功"
+    ) -> "ApiResponse[T]":
+        return cls(success=True, data=data, message=message)
+
+    @classmethod
+    def error_response(
+        cls,
+        code: ErrorCode,
+        message: str,
+        details: Optional[dict] = None
+    ) -> "ApiResponse[T]":
+        error_data = {
+            "code": code.value,
+            "message": message
+        }
+        if details:
+            error_data["details"] = details
+        return cls(success=False, error=error_data)
+
 class SuccessResponse(BaseModel):
     success: bool = True
     data: Any = None
@@ -37,4 +67,31 @@ class ErrorResponse(BaseModel):
         "code": "ERROR_CODE",
         "message": "错误描述",
         "details": {}
+    }
+
+
+def success_response(data: Any = None, message: str = "操作成功") -> dict:
+    """
+    成功响应包装函数
+    """
+    return {
+        "success": True,
+        "data": data,
+        "message": message
+    }
+
+
+def error_response(code: ErrorCode, message: str, details: Optional[dict] = None) -> dict:
+    """
+    错误响应包装函数
+    """
+    error_data = {
+        "code": code.value,
+        "message": message
+    }
+    if details:
+        error_data["details"] = details
+    return {
+        "success": False,
+        "error": error_data
     }
