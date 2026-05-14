@@ -1,5 +1,5 @@
 from jose import jwt, JWTError
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Optional, Tuple
 import uuid
 from src.core.config import get_settings
@@ -15,13 +15,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """创建访问令牌"""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(hours=settings.ACCESS_TOKEN_EXPIRE_HOURS)
+        expire = datetime.utcnow() + timedelta(hours=settings.ACCESS_TOKEN_EXPIRE_HOURS)
 
     to_encode.update({
         "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.utcnow(),
         "type": "access",
         "jti": str(uuid.uuid4())
     })

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import os
 import uuid
 
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+os.environ["DATABASE_URL"] = "mysql+pymysql://root:root@localhost:3306/nocode_app_test?charset=utf8mb4"
 
 from src.main import app
 from src.db.session import Base, get_db
@@ -14,8 +14,8 @@ from src.models.user import User, UserSession
 from src.models.team import Team, TeamMember
 from src.core.security import get_password_hash
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/nocode_app_test?charset=utf8mb4"
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def override_get_db():
@@ -31,6 +31,7 @@ client = TestClient(app)
 
 @pytest.fixture(scope="function")
 def setup_database():
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

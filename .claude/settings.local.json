@@ -6,7 +6,17 @@
       "Bash(python -m pytest tests/test_user_permission.py -v)",
       "Bash(rm -f test.db)",
       "Bash(python -m pytest tests/test_user_permission.py::TestUserAuthentication::test_register_user -v -xvs)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(python -m pytest tests/test_project_management.py -v)",
+      "Bash(python -c \":*)",
+      "Bash(python -m py_compile src/api/v1/shares.py src/api/v1/collaborators.py src/services/collaborator_service.py src/services/snapshot_service.py src/services/share_service.py src/services/project_service.py)",
+      "Bash(python3 -c \":*)",
+      "Bash(python3:*)",
+      "Bash(python -m pytest tests/test_user_permission.py -q --tb=short)",
+      "Bash(python -m pytest tests/test_user_permission.py::TestUserAuthentication::test_register_user -xvs)",
+      "Bash(python -m pytest tests/test_user_permission.py --tb=short)",
+      "Bash(python test_module_one_simple.py)",
+      "Bash(python:*)"
     ]
   }
 }

@@ -9,6 +9,10 @@ engine = create_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,
     pool_recycle=300,
+    echo=False,
+    max_overflow=10,
+    pool_size=5,
+    connect_args={"init_command": "SET time_zone = '+00:00'"},
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
